@@ -94,11 +94,17 @@ class Model:
 
 
 if __name__ == '__main__':
+    torch._C._jit_set_profiling_executor(True)
+    torch._C._jit_set_profiling_mode(True)
+    torch._C._jit_set_bailout_depth(20)
+    torch._C._jit_override_can_fuse_on_cpu(False)
+    torch._C._jit_override_can_fuse_on_gpu(False)
+    torch._C._jit_set_texpr_fuser_enabled(True)
     for device in ['cpu', 'cuda']:
         for jit in [True, False]:
             print("Testing device {}, JIT {}".format(device, jit))
             m = Model(device=device, jit=jit)
             bert, example_inputs = m.get_module()
             bert(*example_inputs)
-            m.train()
-            m.eval()
+            m.train(niter=3)
+            m.eval(niter=3)
